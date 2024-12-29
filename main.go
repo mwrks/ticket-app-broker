@@ -8,6 +8,7 @@ import (
 func init() {
 	initializers.LoadEnv()
 	initializers.ConnectDatabase()
+	initializers.InitQueue()
 }
 func main() {
 	r := routes.SetupRouter()

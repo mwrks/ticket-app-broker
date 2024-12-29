@@ -8,34 +8,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateOrder(c *gin.Context) {
-	var order models.Order
-	if err := c.ShouldBindJSON(&order); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// func CreateOrder(c *gin.Context) {
+// 	var order models.Order
+// 	if err := c.ShouldBindJSON(&order); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	var ticket models.Ticket
-	if err := initializers.DB.First(&ticket, order.TicketID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Ticket not found"})
-		return
-	}
+// 	var ticket models.Ticket
+// 	if err := initializers.DB.First(&ticket, order.TicketID).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Ticket not found"})
+// 		return
+// 	}
 
-	if ticket.CurrentQuantity < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Not enough tickets available"})
-		return
-	}
+// 	if ticket.CurrentQuantity < 1 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Not enough tickets available"})
+// 		return
+// 	}
 
-	ticket.CurrentQuantity--
-	initializers.DB.Save(&ticket)
+// 	ticket.CurrentQuantity--
+// 	initializers.DB.Save(&ticket)
 
-	if result := initializers.DB.Create(&order); result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
+// 	if result := initializers.DB.Create(&order); result.Error != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+// 		return
+// 	}
 
-	c.JSON(http.StatusCreated, order)
-}
+// 	c.JSON(http.StatusCreated, order)
+// }
 
 func GetOrders(c *gin.Context) {
 	var orders []models.Order
