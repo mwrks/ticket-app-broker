@@ -87,7 +87,7 @@ func ConsumeFromQueue() {
 	msgs, err := ch.Consume(
 		q.Name, // Queue name
 		"",     // Consumer tag
-		false,  // Don't auto-acknowledge
+		false,  // Auto-acknowledge
 		false,  // Exclusive
 		false,  // No-local
 		false,  // No-wait
