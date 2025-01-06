@@ -22,6 +22,7 @@ func SetupRouter() *gin.Engine {
 	{
 		orderRoutes.POST("/", controllers.CreateOrder)
 		orderRoutes.POST("/:id/reset", controllers.DeleteOrdersByTicketID)
+		orderRoutes.POST("/reset-sequence", controllers.ResetOrderSequence)
 		orderRoutes.GET("/", controllers.GetOrders)
 		orderRoutes.GET("/:id", controllers.GetOrderByID)
 		orderRoutes.DELETE("/:id", controllers.DeleteOrder)

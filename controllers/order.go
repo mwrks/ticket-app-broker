@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+
 	"github.com/mwrks/ticket-app-broker/initializers"
 	"github.com/mwrks/ticket-app-broker/models"
 
@@ -47,9 +48,13 @@ func GetOrders(c *gin.Context) {
 }
 
 func GetOrderByID(c *gin.Context) {
-	id := c.Param("id")
-	var order models.Order
-	if result := initializers.DB.First(&order, id); result.Error != nil {
+	ticket_id := c.Param("id")
+	var order []models.Order
+	if result := initializers.DB.Where("ticket_id = ?", ticket_id).Find(&order); result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+		return
+	}
+	if len(order) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 		return
 	}
@@ -83,4 +88,16 @@ func DeleteOrdersByTicketID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Orders deleted successfully"})
+
+}
+
+func ResetOrderSequence(c *gin.Context) {
+	// Execute the SQL query to reset the sequence
+	query := "ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;"
+	if err := initializers.DB.Exec(query).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset order sequence"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Order sequence reset successfully"})
 }
