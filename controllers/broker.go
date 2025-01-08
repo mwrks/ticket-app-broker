@@ -14,7 +14,7 @@ import (
 
 // Publish
 func PublishToQueue(order models.Order) error {
-	// Connecting to AMQP
+	// Connect to AMQP
 	conn, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func PublishToQueue(order models.Order) error {
 
 // Consume
 func ConsumeFromQueue() {
-	// Connecting to AMQP
+	// Connect to AMQP
 	conn, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)

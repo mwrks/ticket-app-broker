@@ -8,14 +8,14 @@ import (
 
 func init() {
 	initializers.LoadEnv()         // Load environment variables
-	initializers.ConnectDatabase() // Connecting to database
+	initializers.ConnectDatabase() // Connect to database
 }
 
 func main() {
 	// Initialize router
 	r := routes.SetupRouter()
 
-	// Load AMQP and run Consumer
+	// Run consumer goroutines
 	go controllers.ConsumeFromQueue()
 
 	// Listen and serve on 0.0.0.0:8080
