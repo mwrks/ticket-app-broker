@@ -14,18 +14,21 @@ import (
 
 // Publish
 func PublishToQueue(order models.Order) error {
+	// Connecting to AMQP
 	conn, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
 
+	// Declare channel
 	ch, err := conn.Channel()
 	if err != nil {
 		return err
 	}
 	defer ch.Close()
 
+	// Declare queue
 	q, err := ch.QueueDeclare(
 		"orders", // queue name
 		true,     // durable
@@ -38,11 +41,13 @@ func PublishToQueue(order models.Order) error {
 		return err
 	}
 
+	// Encode order to JSON
 	body, err := json.Marshal(order)
 	if err != nil {
 		return err
 	}
 
+	// Publish the order message to AMQP server
 	err = ch.Publish(
 		"",     // exchange
 		q.Name, // routing key (queue name)
@@ -58,12 +63,14 @@ func PublishToQueue(order models.Order) error {
 
 // Consume
 func ConsumeFromQueue() {
+	// Connecting to AMQP
 	conn, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
 
+	// Declare channel
 	ch, err := conn.Channel()
 	if err != nil {
 		log.Fatalf("Failed to open a channel: %v", err)
@@ -97,6 +104,7 @@ func ConsumeFromQueue() {
 		log.Fatalf("Failed to register a consumer: %v", err)
 	}
 
+	// Processing messages
 	for d := range msgs {
 		var order models.Order
 		log.Printf("Received a message: %s", d.Body)
@@ -115,19 +123,23 @@ func ConsumeFromQueue() {
 	}
 }
 
+// Process the order
 func processOrder(order models.Order) {
 	var ticket models.Ticket
+
+	// Retrieve the associated ticket from the database
 	if err := initializers.DB.First(&ticket, order.TicketID).Error; err != nil {
 		log.Printf("Ticket not found: %v", err)
 		return
 	}
 
+	// Check if enough tickets are available
 	if ticket.CurrentQuantity < 1 {
 		log.Printf("No stock available for ticket ID %d", order.TicketID)
 		return
 	}
 
-	// Decrease the stock and save the ticket
+	// Decrement ticket quantity
 	ticket.CurrentQuantity--
 	if err := initializers.DB.Save(&ticket).Error; err != nil {
 		log.Printf("Failed to update stock: %v", err)
